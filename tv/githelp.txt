@@ -1,0 +1,26 @@
+
+
+git submodule update --init --recursive
+
+
+https://help.github.com/articles/syncing-a-fork/
+git remote add upstream https://github.com/../..git
+git remote -v
+git fetch upstream master
+git merge upstream/master
+
+git checkout master
+git checkout .
+
+git status
+
+git add  <file>
+git add -A
+git add -u 
+git add . 
+
+
+git rm   <file>
+
+git commit
+git commit --amend
