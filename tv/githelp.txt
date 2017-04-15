@@ -1,5 +1,13 @@
 
 
+https://git-scm.com/docs/git-clone
+--recursive
+--recurse-submodules
+After the clone is created, initialize all submodules within, using their default settings. This is equivalent to running 
+git submodule update --init --recursive 
+immediately after the clone is finished. This option is ignored if the cloned repository does not have a worktree/checkout 
+
+
 git submodule update --init --recursive
 
 https://help.github.com/articles/syncing-a-fork/
@@ -27,3 +35,4 @@ git commit --amend
 git push origin master
 
 git commit -a -m "commit info"
+
