@@ -2,7 +2,6 @@
 
 git submodule update --init --recursive
 
-
 https://help.github.com/articles/syncing-a-fork/
 git remote add upstream https://github.com/../..git
 git remote -v
