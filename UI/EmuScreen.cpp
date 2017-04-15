@@ -36,6 +36,7 @@
 
 #ifndef MOBILE_DEVICE
 #include "Core/AVIDump.h"
+#include "tv/TVIDump.h"
 #endif
 #include "Core/Config.h"
 #include "Core/CoreTiming.h"
@@ -79,7 +80,7 @@
 #endif
 
 #ifndef MOBILE_DEVICE
-AVIDump avi;
+TVIDump avi;
 #endif
 
 static bool frameStep_;
@@ -98,6 +99,7 @@ static void __EmuScreenVblank()
 	if (g_Config.bDumpFrames && !startDumping)
 	{
 		avi.Start(PSP_CoreParameter().renderWidth, PSP_CoreParameter().renderHeight);
+		avi.Empty(PSP_CoreParameter().renderWidth, PSP_CoreParameter().renderHeight);
 		osm.Show("AVI Dump started.", 3.0f);
 		startDumping = true;
 	}

@@ -23,7 +23,8 @@
     <RootNamespace>DaSh</RootNamespace>
     <Keyword>Win32Proj</Keyword>
     <ProjectName>PPSSPPWindows</ProjectName>
-    <WindowsTargetPlatformVersion></WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>
+    </WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -543,6 +544,9 @@
     </ProjectReference>
     <ProjectReference Include="..\ext\zlib\zlib.vcxproj">
       <Project>{f761046e-6c38-4428-a5f1-38391a37bb34}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\tv\TV.vcxproj">
+      <Project>{e2b47731-d50f-4ba3-b94b-53be1c9129c2}</Project>
     </ProjectReference>
     <ProjectReference Include="..\UI\UI.vcxproj">
       <Project>{004b8d11-2be3-4bd9-ab40-2be04cf2096f}</Project>
