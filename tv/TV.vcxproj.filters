@@ -16,7 +16,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
-    <Text Include="..\githelp.txt">
+    <Text Include="githelp.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>
