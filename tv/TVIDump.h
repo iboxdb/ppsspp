@@ -3,14 +3,18 @@
 #pragma once
 
 #include "Common/CommonTypes.h"
-#include "Core/AVIDump.h"
 
-class TVIDump : public AVIDump
+
+
+
+class TVIDump
 {
 private:
  
-
-public: 
-	static bool Empty(int w, int h);
+	static void CheckResolution(int width, int height);
+public:  
+	static bool Start(int w, int h);
+	static void AddFrame();
+	static void Stop();
 };
 #endif
