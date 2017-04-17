@@ -24,7 +24,7 @@ namespace tvshow
         int s_height;
         private void Form1_Load(object sender, EventArgs e)
         {
-            var path = @"C:\PSP\ppsspp\memstick\PSP\VIDEO\fd1492436762-31120.tvi";
+            var path = @"C:\PSP\ppsspp\memstick\PSP\VIDEO\fd1492440010-38130.tvi";
 
             file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None, 8 * 1024 * 1024, FileOptions.None);
 
