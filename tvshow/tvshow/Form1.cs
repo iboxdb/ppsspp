@@ -24,7 +24,7 @@ namespace tvshow
         int s_height;
         private void Form1_Load(object sender, EventArgs e)
         {
-            var path = @"C:\PSP\ppsspp\memstick\PSP\VIDEO\fd1492415785-47414.tvi";
+            var path = @"C:\PSP\ppsspp\memstick\PSP\VIDEO\fd1492436762-31120.tvi";
 
             file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None, 8 * 1024 * 1024, FileOptions.None);
 
@@ -81,6 +81,14 @@ namespace tvshow
                 }
             }else
             {
+                image = new Bitmap(s_width, s_height);
+                for (int h = 0; h < s_height; h++)
+                {
+                    for (int w = 0; w < s_width; w++)
+                    {
+                        image.SetPixel(w, h, Color.FromArgb(100, 100, 100));
+                    }
+                }
                 this.Text = "end";
             }
         }
@@ -88,7 +96,7 @@ namespace tvshow
         private void timer1_Tick(object sender, EventArgs e)
         {
             next();
-            Update();
+            Refresh();
         }
     }
 }

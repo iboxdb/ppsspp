@@ -68,7 +68,7 @@ bool TVIDump::Start(int w, int h)
 	if (File::Exists(filename))
 		File::Delete(filename);
 
-	iofile = new  File::IOFile(filename, "a");
+	iofile = new  File::IOFile(filename, "ab+");
 
 	//version
 	int8_t t = 1;
@@ -105,11 +105,10 @@ bool TVIDump::Start(int w, int h)
 	iofile->WriteBytes(&t, 1);
 	iofile->WriteBytes(&t, 1);
 
-	iofile->Flush();
-
-
+	//iofile->Flush();
+	 
 	flipbuffer_full_pos = 0;
-	flipbuffer_full_pos_max = 2 * 60 * 12 * (3 * w * h + 4);
+	flipbuffer_full_pos_max =  12 * (3 * w * h + 4);
 	flipbuffer_full = new u8[flipbuffer_full_pos_max];
 	last_AddFrame = -100000;
 	return false;
@@ -127,13 +126,18 @@ void TVIDump::AddFrame()
 		osm.Show("error last_AddFrame", 3.0f);
 		return;
 	}
-	if (now < (last_AddFrame + 90)) {
+	if (now < (last_AddFrame + 1000)) {
 		return;
 	}
 	last_AddFrame = now;
 
-	bool success = gpuDebug->GetCurrentFramebuffer(buf, GPU_DBG_FRAMEBUF_DISPLAY);
+	//enable DoubleBuffer frame
+	bool success = gpuDebug->GetCurrentFramebuffer(buf, GPU_DBG_FRAMEBUF_DISPLAY); 
 
+	if (!success) {
+		osm.Show("error GetOutputFramebuffer", 3.0f);
+		return;
+	}
 	u32 w = buf.GetStride();
 	u32 h = buf.GetHeight();
 	if (w == 0 || h == 0) {
@@ -147,9 +151,11 @@ void TVIDump::AddFrame()
 
 	const u8 *buffer = ConvertBufferTo888RGB(buf, flipbuffer, w, h);
 
+ 
 	if ((flipbuffer_full_pos + (3 * w * h + 4)) > flipbuffer_full_pos_max) {
 		osm.Show("error ", 3.0f);
 	}
+
 
 	flipbuffer_full[flipbuffer_full_pos + 0] = now & 0xFF;
 	flipbuffer_full[flipbuffer_full_pos + 1] = (now >> 8) & 0xFF;
@@ -162,6 +168,7 @@ void TVIDump::AddFrame()
 
 	if (flipbuffer_full_pos >= flipbuffer_full_pos_max) {
 		osm.Show("TVI Dump saving. ", 3.0f);
+	 
 		iofile->WriteBytes(flipbuffer_full, flipbuffer_full_pos);
 		Stop();
 		delete[] flipbuffer;
@@ -174,7 +181,7 @@ void TVIDump::AddFrame()
 void TVIDump::Stop()
 {
 	if (iofile != nullptr) {
-		iofile->Flush();
+		//iofile->Flush();
 		iofile->Close();
 		iofile = nullptr;
 	}
