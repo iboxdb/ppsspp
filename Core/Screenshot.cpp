@@ -127,7 +127,7 @@ static bool WriteScreenshotToPNG(png_imagep image, const char *filename, int con
 
 const u8 *ConvertBufferTo888RGB(const GPUDebugBuffer &buf, u8 *&temp, u32 &w, u32 &h) {
 	// The temp buffer will be freed by the caller if set, and can be the return value.
-	temp = nullptr;
+	//temp = nullptr;
 
 	w = std::min(w, buf.GetStride());
 	h = std::min(h, buf.GetHeight());
@@ -135,7 +135,9 @@ const u8 *ConvertBufferTo888RGB(const GPUDebugBuffer &buf, u8 *&temp, u32 &w, u3
 	const u8 *buffer = buf.GetData();
 	if (buf.GetFlipped() && buf.GetFormat() == GPU_DBG_FORMAT_888_RGB) {
 		// Silly OpenGL reads upside down, we flip to another buffer for simplicity.
-		temp = new u8[3 * w * h];
+		if (temp == nullptr) {
+			temp = new u8[3 * w * h];
+		}
 		for (u32 y = 0; y < h; y++) {
 			memcpy(temp + y * w * 3, buffer + (buf.GetHeight() - y - 1) * buf.GetStride() * 3, w * 3);
 		}
@@ -146,9 +148,9 @@ const u8 *ConvertBufferTo888RGB(const GPUDebugBuffer &buf, u8 *&temp, u32 &w, u3
 		bool rev = (buf.GetFormat() & GPU_DBG_FORMAT_REVERSE_FLAG) != 0;
 		bool brswap = (buf.GetFormat() & GPU_DBG_FORMAT_BRSWAP_FLAG) != 0;
 		bool flip = buf.GetFlipped();
-
-		temp = new u8[3 * w * h];
-
+		if (temp == nullptr) {
+			temp = new u8[3 * w * h];
+		}
 		// This is pretty inefficient.
 		const u16 *buf16 = (const u16 *)buffer;
 		const u32 *buf32 = (const u32 *)buffer;

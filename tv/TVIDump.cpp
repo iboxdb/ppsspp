@@ -19,6 +19,7 @@
 #include "base/timeutil.h"
 
 #include "Core/AVIDump.h"
+#include "UI/OnScreenDisplay.h"
 
 AVIDump* test;
 
@@ -26,6 +27,13 @@ static int s_width;
 static int s_height;
 
 static GPUDebugBuffer buf;
+static u8 *flipbuffer = nullptr;
+
+
+static u8 *flipbuffer_full = nullptr;
+static int32_t flipbuffer_full_pos;
+static int32_t flipbuffer_full_pos_max;
+static int last_AddFrame;
 
 File::IOFile* iofile = nullptr;
 
@@ -34,7 +42,6 @@ void TVIDump::CheckResolution(int width, int height)
 	if ((width != s_width || height != s_height) && (width > 0 && height > 0))
 	{
 		Stop();
-		Start(width, height);
 	}
 }
 
@@ -100,36 +107,68 @@ bool TVIDump::Start(int w, int h)
 
 	iofile->Flush();
 
+
+	flipbuffer_full_pos = 0;
+	flipbuffer_full_pos_max = 2 * 60 * 12 * (3 * w * h + 4);
+	flipbuffer_full = new u8[flipbuffer_full_pos_max];
+	last_AddFrame = -100000;
 	return false;
 }
 
+
 void TVIDump::AddFrame()
 {
+	if (iofile == nullptr) {
+		return;
+	}
+	time_update();
+	int now = time_now_ms();
+	if (now < last_AddFrame) {
+		osm.Show("error last_AddFrame", 3.0f);
+		return;
+	}
+	if (now < (last_AddFrame + 90)) {
+		return;
+	}
+	last_AddFrame = now;
+
 	bool success = gpuDebug->GetCurrentFramebuffer(buf, GPU_DBG_FRAMEBUF_DISPLAY);
- 
+
 	u32 w = buf.GetStride();
 	u32 h = buf.GetHeight();
 	if (w == 0 || h == 0) {
-		ERROR_LOG(G3D, "Failed to obtain screenshot data.");
+		//ERROR_LOG(G3D, "Failed to obtain screenshot data.");
 		return;
 	}
 	CheckResolution(w, h);
+	if (iofile == nullptr) {
+		return;
+	}
 
-	u8 *flipbuffer = nullptr;
 	const u8 *buffer = ConvertBufferTo888RGB(buf, flipbuffer, w, h);
 
-	time_update();
-	int now = time_now_ms();
-	int8_t nowarr[4];
-	nowarr[0] = now & 0xFF;
-	nowarr[1] = (now >> 8) & 0xFF;
-	nowarr[1] = (now >> 16) & 0xFF;
-	nowarr[1] = (now >> 24) & 0xFF;
-	iofile->WriteBytes(nowarr, 4);
+	if ((flipbuffer_full_pos + (3 * w * h + 4)) > flipbuffer_full_pos_max) {
+		osm.Show("error ", 3.0f);
+	}
 
+	flipbuffer_full[flipbuffer_full_pos + 0] = now & 0xFF;
+	flipbuffer_full[flipbuffer_full_pos + 1] = (now >> 8) & 0xFF;
+	flipbuffer_full[flipbuffer_full_pos + 2] = (now >> 16) & 0xFF;
+	flipbuffer_full[flipbuffer_full_pos + 3] = (now >> 24) & 0xFF;
 
-	iofile->WriteBytes(buffer, w*h * 3);
-	iofile->Flush();
+	memcpy(flipbuffer_full + flipbuffer_full_pos + 4, buffer, w * h * 3);
+
+	flipbuffer_full_pos += (3 * w * h + 4);
+
+	if (flipbuffer_full_pos >= flipbuffer_full_pos_max) {
+		osm.Show("TVI Dump saving. ", 3.0f);
+		iofile->WriteBytes(flipbuffer_full, flipbuffer_full_pos);
+		Stop();
+		delete[] flipbuffer;
+		delete[] flipbuffer_full;
+		osm.Show("TVI Dump saved.", 3.0f);
+	}
+
 }
 
 void TVIDump::Stop()
