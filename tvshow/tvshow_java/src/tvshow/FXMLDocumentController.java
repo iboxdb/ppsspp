@@ -19,6 +19,7 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 /**
@@ -49,8 +50,14 @@ public class FXMLDocumentController implements Initializable {
 
     void load(Stage stage) throws Exception {
         this.stage = stage;
+
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Open File");
+        File cfile = chooser.showOpenDialog(stage);
+
         String path = "C:\\PSP\\ppsspp\\memstick\\PSP\\VIDEO\\fd1492440010-38130.tvi";
-        file = new BufferedInputStream(new FileInputStream(path), 8 * 1024 * 1024);
+
+        file = new BufferedInputStream(new FileInputStream(cfile), 8 * 1024 * 1024);
 
         byte version = (byte) file.read();
         byte intsize = (byte) file.read();
@@ -106,14 +113,14 @@ public class FXMLDocumentController implements Initializable {
 
             for (int h = 0; h < s_height; h++) {
                 for (int w = 0; w < s_width; w++) {
-                    /*
-                    int rgb = file.read() & 0xFF;
+
+                    int rgb = (file.read() & 0xFF) << 16;
                     rgb |= (file.read() & 0xFF) << 8;
-                    rgb |= (file.read() & 0xFF) << 16;
+                    rgb |= (file.read() & 0xFF);
                     rgb |= (0xFF) << 24;
                     writer.setArgb(w, h, rgb);
-                     */
-                    writer.setColor(w, h, Color.rgb(file.read() & 0xFF, file.read() & 0xFF, file.read() & 0xFF));
+
+                    //writer.setColor(w, h, Color.rgb(file.read() & 0xFF, file.read() & 0xFF, file.read() & 0xFF));
                 }
             }
         } else {
