@@ -24,7 +24,16 @@ namespace tvshow
         int s_height;
         private void Form1_Load(object sender, EventArgs e)
         {
+            timer1.Enabled = false; 
+            OpenFileDialog openFileDialog1 = new OpenFileDialog();
+     
+
             var path = @"C:\PSP\ppsspp\memstick\PSP\VIDEO\fd1492440010-38130.tvi";
+            if (openFileDialog1.ShowDialog(this) == DialogResult.OK)
+            {
+                path = openFileDialog1.FileName;
+            }
+
 
             file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None, 8 * 1024 * 1024, FileOptions.None);
 
@@ -51,13 +60,16 @@ namespace tvshow
             this.Width = s_width + 50;
             this.Height = s_height + 50;
 
-            next();
+            timer1.Enabled = true;
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
-            Graphics g = this.CreateGraphics();
-            g.DrawImage(image, new Point(0, 0));
+            if (image != null)
+            {
+                Graphics g = this.CreateGraphics();
+                g.DrawImage(image, new Point(0, 0));
+            }
         }
 
         private void next()
@@ -79,7 +91,8 @@ namespace tvshow
                         image.SetPixel(w, h, Color.FromArgb(file.ReadByte(), file.ReadByte(), file.ReadByte()));
                     }
                 }
-            }else
+            }
+            else
             {
                 image = new Bitmap(s_width, s_height);
                 for (int h = 0; h < s_height; h++)

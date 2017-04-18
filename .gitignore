@@ -97,3 +97,5 @@ debian/ppsspp/
 
 # YouCompleteMe file
 .ycm_extra_conf.pyc
+/tvshow/tvshow_java/nbproject/private/
+/tvshow/tvshow_java/dist/
