@@ -48,14 +48,10 @@ public class FXMLDocumentController implements Initializable {
         //   ap.get
     }
 
-    void load(Stage stage) throws Exception {
+    void load(Stage stage, File cfile) throws Exception {
         this.stage = stage;
 
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle("Open File");
-        File cfile = chooser.showOpenDialog(stage);
-
-        String path = "C:\\PSP\\ppsspp\\memstick\\PSP\\VIDEO\\fd1492440010-38130.tvi";
+        //String path = "C:\\PSP\\ppsspp\\memstick\\PSP\\VIDEO\\fd1492440010-38130.tvi";
 
         file = new BufferedInputStream(new FileInputStream(cfile), 8 * 1024 * 1024);
 
