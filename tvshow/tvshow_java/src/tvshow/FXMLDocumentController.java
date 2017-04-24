@@ -52,7 +52,6 @@ public class FXMLDocumentController implements Initializable {
         this.stage = stage;
 
         //String path = "C:\\PSP\\ppsspp\\memstick\\PSP\\VIDEO\\fd1492440010-38130.tvi";
-
         file = new BufferedInputStream(new FileInputStream(cfile), 8 * 1024 * 1024);
 
         byte version = (byte) file.read();
@@ -86,7 +85,9 @@ public class FXMLDocumentController implements Initializable {
             @Override
             public void handle(long now) {
                 try {
-                    next();
+                    if (!next()) {
+                        this.stop();
+                    }
                 } catch (Exception ex) {
                     Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -95,14 +96,16 @@ public class FXMLDocumentController implements Initializable {
 
     }
 
-    private void next() throws Exception {
+    private int nextcount = 0;
+
+    private boolean next() throws Exception {
         if (file.available() > 0) {
             int ms = file.read() & 0xFF;
             ms |= (file.read() & 0xFF) << 8;
             ms |= (file.read() & 0xFF) << 16;
             ms |= (file.read() & 0xFF) << 24;
 
-            stage.setTitle(Integer.toString(ms));
+            stage.setTitle(Integer.toString(ms) + " (" + this.s_width + "x" + this.s_height + ")  " + (++nextcount));
 
             image = new WritableImage(s_width, s_height);
             PixelWriter writer = image.getPixelWriter();
@@ -119,6 +122,8 @@ public class FXMLDocumentController implements Initializable {
                     //writer.setColor(w, h, Color.rgb(file.read() & 0xFF, file.read() & 0xFF, file.read() & 0xFF));
                 }
             }
+            canvas.getGraphicsContext2D().drawImage(image, 0, 0);
+            return true;
         } else {
             image = new WritableImage(s_width, s_height);
             PixelWriter writer = image.getPixelWriter();
@@ -129,9 +134,11 @@ public class FXMLDocumentController implements Initializable {
                     writer.setArgb(w, h, rgb);
                 }
             }
-            stage.setTitle("END.");
+            stage.setTitle("END." + " (" + this.s_width + "x" + this.s_height + ")  " + (++nextcount));
+            canvas.getGraphicsContext2D().drawImage(image, 0, 0);
+            return false;
         }
-        canvas.getGraphicsContext2D().drawImage(image, 0, 0);
+
     }
 
 }
