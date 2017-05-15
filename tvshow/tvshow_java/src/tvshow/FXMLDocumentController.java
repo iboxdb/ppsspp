@@ -31,11 +31,9 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private Label label;
 
-    private BufferedInputStream file;
     private WritableImage image;
 
-    int s_width;
-    int s_height;
+    ImageList imageList;
     Stage stage;
 
     @FXML
@@ -52,30 +50,15 @@ public class FXMLDocumentController implements Initializable {
         this.stage = stage;
 
         //String path = "C:\\PSP\\ppsspp\\memstick\\PSP\\VIDEO\\fd1492440010-38130.tvi";
-        file = new BufferedInputStream(new FileInputStream(cfile), 8 * 1024 * 1024);
+        BufferedInputStream file = new BufferedInputStream(new FileInputStream(cfile), 8 * 1024 * 1024);
 
-        byte version = (byte) file.read();
-        byte intsize = (byte) file.read();
+        byte[] bs = new byte[file.available()];
+        file.read(bs);
+        file.close();
+        imageList = new ImageList(bs);
 
-        s_width = file.read() & 0xFF;
-        s_width |= (file.read() & 0xFF) << 8;
-
-        file.read();
-        file.read();
-
-        s_height = file.read() & 0xFF;
-        s_height |= (file.read() & 0xFF) << 8;
-
-        file.read();
-        file.read();
-
-        file.read();
-        file.read();
-        file.read();
-        file.read();
-
-        stage.setWidth(s_width + 50);
-        stage.setHeight(s_height + 50);
+        stage.setWidth(imageList.s_width + 50);
+        stage.setHeight(imageList.s_height + 50);
 
         canvas.setWidth(stage.getWidth());
         canvas.setHeight(stage.getHeight());
@@ -99,24 +82,19 @@ public class FXMLDocumentController implements Initializable {
     private int nextcount = 0;
 
     private boolean next() throws Exception {
-        if (file.available() > 0) {
-            int ms = file.read() & 0xFF;
-            ms |= (file.read() & 0xFF) << 8;
-            ms |= (file.read() & 0xFF) << 16;
-            ms |= (file.read() & 0xFF) << 24;
+        if (imageList.size > nextcount) {
+            ImageList.Image bsimage = imageList.getImage(nextcount++);
 
-            stage.setTitle(Integer.toString(ms) + " (" + this.s_width + "x" + this.s_height + ")  " + (++nextcount));
+            stage.setTitle(Integer.toString(bsimage.getTime()) + " (" + bsimage.getWidth() + "x" + bsimage.getHeight() + ")  "
+                    + (nextcount));
 
-            image = new WritableImage(s_width, s_height);
+            image = new WritableImage(bsimage.getWidth(), bsimage.getHeight());
             PixelWriter writer = image.getPixelWriter();
 
-            for (int h = 0; h < s_height; h++) {
-                for (int w = 0; w < s_width; w++) {
+            for (int h = 0; h < bsimage.getHeight(); h++) {
+                for (int w = 0; w < bsimage.getWidth(); w++) {
 
-                    int rgb = (file.read() & 0xFF) << 16;
-                    rgb |= (file.read() & 0xFF) << 8;
-                    rgb |= (file.read() & 0xFF);
-                    rgb |= (0xFF) << 24;
+                    int rgb = bsimage.getRGB(w, h);
                     writer.setArgb(w, h, rgb);
 
                     //writer.setColor(w, h, Color.rgb(file.read() & 0xFF, file.read() & 0xFF, file.read() & 0xFF));
@@ -125,16 +103,16 @@ public class FXMLDocumentController implements Initializable {
             canvas.getGraphicsContext2D().drawImage(image, 0, 0);
             return true;
         } else {
-            image = new WritableImage(s_width, s_height);
+            image = new WritableImage((int) image.getWidth(), (int) image.getHeight());
             PixelWriter writer = image.getPixelWriter();
 
-            for (int h = 0; h < s_height; h++) {
-                for (int w = 0; w < s_width; w++) {
+            for (int h = 0; h < (int) image.getHeight(); h++) {
+                for (int w = 0; w < (int) image.getWidth(); w++) {
                     int rgb = 0xAAAAAAAA;
                     writer.setArgb(w, h, rgb);
                 }
             }
-            stage.setTitle("END." + " (" + this.s_width + "x" + this.s_height + ")  " + (++nextcount));
+            stage.setTitle("END." + " (" + image.getWidth() + "x" + image.getHeight() + ")  " + (++nextcount));
             canvas.getGraphicsContext2D().drawImage(image, 0, 0);
             return false;
         }
